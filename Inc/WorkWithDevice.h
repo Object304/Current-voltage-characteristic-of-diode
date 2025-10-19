@@ -7,12 +7,7 @@
 #include "USART.h"
 #include "Buffer.h"
 
-extern uint16_t MCP4921_Value;
-
 void Periphery_Init();
-void Start_Test();
-void Start_Work();
-void delay_us(uint32_t us);
-void RDY_Check(Buffer* buf);
+void Start_Work(uint16_t MCP4921_TargetValue);
 
 #endif /* INC_WORKWITHDEVICE_H_ */
