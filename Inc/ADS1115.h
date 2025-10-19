@@ -4,10 +4,9 @@
 #include "stm32f303xe.h"
 
 void I2C1_Init();
-void I2C1_Write(uint8_t addr, uint8_t reg, uint16_t data);
-uint16_t I2C1_Read(uint8_t addr, uint8_t reg);
 void ADS1115_Config(uint8_t addr, uint16_t config);
 float ADS1115_ReadConversion(uint8_t addr, float PGA);
+void ADS1115_SetThresholds(uint8_t addr, uint16_t lo, uint16_t hi);
 
 #endif /* INC_ADS1115_H_ */
 

@@ -2,3 +2,5 @@
 #include "ADS1115.h"
 #include "MCP4921.h"
 #include "USART.h"
+#include "WorkWithDevice.h"
+#include "Buffer.h"

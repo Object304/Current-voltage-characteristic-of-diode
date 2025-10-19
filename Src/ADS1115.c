@@ -58,3 +58,8 @@ void ADS1115_Config(uint8_t addr, uint16_t config) {
 float ADS1115_ReadConversion(uint8_t addr, float PGA) {
 	return (int16_t)I2C1_Read(addr, 0x00) * PGA / 32768.0f;
 }
+
+void ADS1115_SetThresholds(uint8_t addr, uint16_t lo, uint16_t hi) {
+	I2C1_Write(addr, 0x02, lo); // Lo_thresh
+	I2C1_Write(addr, 0x03, hi); // Hi_thresh
+}

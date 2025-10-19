@@ -1,6 +1,6 @@
 #include "USART.h"
 
-void USART1_Init() {
+void USART2_Init() {
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 	GPIOA->MODER |= GPIO_MODER_MODER2_1 | GPIO_MODER_MODER3_1;
 	GPIOA->AFR[0] |= (7 << 8) | (7 << 12);
@@ -10,12 +10,12 @@ void USART1_Init() {
 	USART2->CR1 |= USART_CR1_UE;
 }
 
-void USART1_SendByte(uint8_t byte) {
-	while (!(USART1->ISR & USART_ISR_TXE));
-	USART1->TDR = byte;
+void USART2_SendByte(uint8_t byte) {
+	while (!(USART2->ISR & USART_ISR_TXE));
+	USART2->TDR = byte;
 }
 
-void USART1_SendFloats(float x, float y) {
+void USART2_SendFloats(float x, float y) {
 	uint8_t buf[1 + 4 + 4 + 1]; // SYNC + x + y + CRC
 	uint8_t crc = 0;
 	uint16_t idx = 0;
@@ -23,17 +23,21 @@ void USART1_SendFloats(float x, float y) {
 	buf[idx++] = 0xAA;
 	crc = 0xAA;
 
-	memcpy(&buf[idx], &x, 4);
-	for (int i = 0; i < 4; i++) crc ^= buf[idx + i];
-	idx += 4;
+	for (int i = 0; i < 4; i++) {
+		buf[idx] = (*(uint32_t*)&x >> (i * 8)) & 0xFF;
+		crc ^= buf[idx];
+		idx++;
+	}
 
-	memcpy(&buf[idx], &y, 4);
-	for (int i = 0; i < 4; i++) crc ^= buf[idx + i];
-	idx += 4;
+	for (int i = 0; i < 4; i++) {
+		buf[idx] = (*(uint32_t*)&y >> (i * 8)) & 0xFF;
+		crc ^= buf[idx];
+		idx++;
+	}
 
 	buf[idx++] = crc;
 
 	for (uint8_t i = 0; i < idx; i++) {
-		USART1_SendByte(buf[i]);
+		USART2_SendByte(buf[i]);
 	}
 }
