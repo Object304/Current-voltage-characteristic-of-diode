@@ -24,7 +24,7 @@ void Start_Work(uint16_t MCP4921_TargetValue) {
 	float current;
 	uint16_t voltage_config =	(0x01 << 15) | // OS = 1 (start conversion)
 								(0x00 << 12) | // MUX = AIN0-AIN1
-								(0x02 << 9) | // PGA = 2.048V
+								(0x01 << 9) | // PGA = 4.096V
 								(0x01 << 8) | // MODE = Single-shot
 								(0x07 << 5); // DR = 860 SPS
 
@@ -40,7 +40,7 @@ void Start_Work(uint16_t MCP4921_TargetValue) {
 		for (uint8_t i = 0; i < 10; i++) {
 			ADS1115_Config(ADS1115_ADDR, voltage_config);
 			delay_us(1200);
-			voltage = ADS1115_ReadConversion(ADS1115_ADDR, 2.048);
+			voltage = ADS1115_ReadConversion(ADS1115_ADDR, 4.096);
 			add_to_end(voltage, &buf);
 		}
 		voltage = get_avg(&buf);

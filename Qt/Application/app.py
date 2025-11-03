@@ -38,7 +38,7 @@ class MainWindow(QWidget):
 
         self.plot_widget = pg.PlotWidget()
         self.plot_widget.addLegend()
-        self.plot_widget.setLabel('left', 'Current, mA')
+        self.plot_widget.setLabel('left', 'Current, A')
         self.plot_widget.setLabel('bottom', 'Voltage, V')
         self.plot_widget.showGrid(x=True, y=True)
         layout.addWidget(self.plot_widget)
@@ -90,7 +90,7 @@ class MainWindow(QWidget):
                 x = data[:, 0]
                 y = data[:, 1]
 
-                colors = ['b', 'r', 'g', 'c', 'm', 'y', 'k', 'w']
+                colors = ['b', 'r', 'g', 'c', 'm', 'y', 'w']
                 pen = pg.mkPen(color=colors[i % len(colors)], width=2)
                 self.plot_widget.plot(x, y, pen=pen, name=f"output_{i}")
         except Exception as e:
@@ -102,6 +102,7 @@ class MainWindow(QWidget):
             shutil.rmtree(self.log_dir)
         os.makedirs(self.log_dir, exist_ok=True)
         QMessageBox.information(self, "Info", "Log folder cleared!")
+        self.output_path = os.path.join(self.log_dir, f"output_{self.conversion_number}.txt")
 
 
 if __name__ == "__main__":
