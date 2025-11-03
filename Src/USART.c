@@ -1,5 +1,7 @@
 #include "USART.h"
 
+volatile uint8_t sync_byte_received = 0;
+
 void USART2_Init() {
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 	GPIOA->MODER |= GPIO_MODER_MODER2_1 | GPIO_MODER_MODER3_1;
@@ -7,7 +9,17 @@ void USART2_Init() {
 	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
 	USART2->BRR = SystemCoreClock / 9600;
 	USART2->CR1 |= USART_CR1_TE;
+	USART2->CR1 |= USART_CR1_RE;
+	USART2->CR1 |= USART_CR1_RXNEIE;
+	NVIC_EnableIRQ(USART2_IRQn);
 	USART2->CR1 |= USART_CR1_UE;
+}
+
+void USART2_IRQHandler() {
+	if (USART2->ISR & USART_ISR_RXNE) {
+		uint8_t byte = USART2->RDR;
+		if (byte == 0xAA) sync_byte_received = 1;
+	}
 }
 
 void USART2_SendByte(uint8_t byte) {

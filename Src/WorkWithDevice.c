@@ -57,4 +57,6 @@ void Start_Work(uint16_t MCP4921_TargetValue) {
 
 		USART2_SendFloats(voltage, current);
 	}
+	USART2_SendByte(0xC0);
+	MCP4921_Send(10);
 }
