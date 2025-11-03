@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QMessageBox
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QMessageBox, QLineEdit
 import sys
 import serial
 import pyqtgraph as pg
@@ -13,16 +13,29 @@ class MainWindow(QWidget):
 
         self.conversion_number = 0
 
-        self.setWindowTitle("STM32 Plotter")
-        self.resize(600, 400)
+        self.setWindowTitle("Diode characteristic plotter")
+        self.resize(600, 600)
 
-        self.ser = serial.Serial(port="COM3", baudrate=9600, timeout=2)
+        if getattr(sys, 'frozen', False):
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            base_dir = os.path.dirname(__file__)
 
-        self.log_dir = os.path.join(os.path.dirname(__file__), "Log")
+        self.log_dir = os.path.join(base_dir, "Log")
         os.makedirs(self.log_dir, exist_ok=True)
         self.output_path = os.path.join(self.log_dir, f"output_{self.conversion_number}.txt")
 
         layout = QVBoxLayout()
+
+        self.port_label = QLabel("COM port:")
+        layout.addWidget(self.port_label)
+        self.port_input = QLineEdit()
+        self.port_input.setPlaceholderText("Example: COM3")
+        layout.addWidget(self.port_input)
+
+        self.button_com = QPushButton("Enter COM port number")
+        self.button_com.clicked.connect(self.enter_com)
+        layout.addWidget(self.button_com)
 
         self.button_conv = QPushButton("Start conversion")
         self.button_conv.clicked.connect(self.start_conversion)
@@ -78,7 +91,6 @@ class MainWindow(QWidget):
             QMessageBox.information(self, "Info", "Conversion completed successfully!")
             self.conversion_number = self.conversion_number + 1
             self.output_path = os.path.join(self.log_dir, f"output_{self.conversion_number}.txt")
-
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
 
@@ -89,7 +101,6 @@ class MainWindow(QWidget):
                 data = np.loadtxt(f"Log/output_{i}.txt", delimiter="\t")
                 x = data[:, 0]
                 y = data[:, 1]
-
                 colors = ['b', 'r', 'g', 'c', 'm', 'y', 'w']
                 pen = pg.mkPen(color=colors[i % len(colors)], width=2)
                 self.plot_widget.plot(x, y, pen=pen, name=f"output_{i}")
@@ -104,6 +115,17 @@ class MainWindow(QWidget):
         QMessageBox.information(self, "Info", "Log folder cleared!")
         self.output_path = os.path.join(self.log_dir, f"output_{self.conversion_number}.txt")
 
+    def enter_com(self):
+        port_name = self.port_input.text().strip()
+        if not port_name:
+            QMessageBox.warning(self, "Warning", "Enter COM port number!")
+            return
+        try:
+            self.ser = serial.Serial(port=port_name, baudrate=9600, timeout=2)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
+            return
+        self.button_com.setEnabled(False)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
